@@ -1,0 +1,151 @@
+---
+title: "GLM Practice with GM + Rockiness Data"
+author: "C.S. Stratton"
+date: "`r Sys.Date()`"
+#runtime: shiny
+output:
+  html_document:
+    toc: True
+    toc_float: True
+    theme: 
+      bg: "#F5F5F5"
+      fg: "#0000fa"
+      primary: "#50A300"
+      secondary: "#0072B2"
+      success: "#009E73"
+      base_font:
+        google: "Crimson Text"
+      bslib: true
+---
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 20px;
+      text-align: justified;
+}
+.author {
+  font-size: 24px;
+  color: Black;
+  text-align: center;
+}
+h1.title { /* Title*/
+  font-size: 42px;
+  color: Black;
+  text-align: center;
+}
+h1 { /* Header 1 */
+  font-size: 30px;
+  color: Black;
+  font-weight: bold;
+}
+
+h2 { /* Header 2 */
+  font-size: 30px;
+  color: Black;
+  }
+  
+p.caption{
+  font-size: 14px;
+}
+</style>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(arm)
+library(ggfortify)
+library(AICcmodavg)
+library(grid)
+library(readr)
+library(dplyr)
+library(arm)
+```
+
+
+```{r datasets, message=FALSE, warning=FALSE}
+
+gila_all <- read_csv("data_gmocc-all-nv.csv")
+
+gila_tracks <- filter(gila_all, det_type_strict != "v")
+
+gila_vis <- filter(gila_all, det_type_strict != "s")
+
+```
+
+
+```{r ggplot - all data, echo=TRUE}
+
+ggplot(gila_all, aes(rock_ind, det_strict)) +
+  geom_point(size=3) +
+  geom_smooth(method="glm",
+              fullrange = TRUE, #force fit line past limits of data
+              method.args=list(family="binomial"(link="logit"))) +
+  labs(title="Gila monster detections - all data") +
+  ylab ("Probability of Detection") +
+  xlab ("'Sandiness Index'")
+
+```
+
+```{r ggplot - all data - jitter adjusted}
+
+ggplot(gila_all, aes(rock_ind, det_strict)) +
+  geom_point(size=2, position=position_jitter(width=0.1, height=0.15)) +
+  geom_smooth(method="glm",
+              fullrange = TRUE, #force fit line past limits of data
+              method.args=list(family="binomial"(link="logit"))) +
+  labs(title="Gila monster detections - all data") +
+  ylab ("Probability of Detection") +
+  xlab ("Sandiness Index")
+
+```
+
+
+```{r model - all data, echo=TRUE}
+model_gila_all <- glm(det_strict ~ rock_ind, data=gila_all, family=binomial)
+model_gila_all
+```
+
+```{r Binned Redidual Plot - all data, echo=TRUE}
+x <- predict(model_gila_all)
+y <- resid(model_gila_all)
+binnedplot(x, y)
+```
+
+```{r Model Summaries - all data}
+coef(model_gila_all)
+confint(model_gila_all)
+summary(model_gila_all)
+```
+
+```{r ggplot - tracks only, echo=TRUE}
+
+ggplot(gila_tracks, aes(rock_ind, det_strict)) +
+  geom_point(size=2, position=position_jitter(width=0.1, height=0.15)) +
+  geom_smooth(method="glm",
+              fullrange = TRUE, #force fit line past limits of data
+              method.args=list(family="binomial"(link="logit"))) +
+  labs(title="Gila monster detections - visual and tracks") +
+  ylab ("Probability of Detection") +
+  xlab ("Sandiness Index")
+
+```
+
+```{r model - tracks only, echo=TRUE}
+model_gila_all <- glm(det_strict ~ rock_ind, data=gila_tracks, family=binomial)
+model_gila_all
+```
+
+```{r Binned Redidual Plot - tracks only, echo=TRUE}
+x <- predict(model_gila_all)
+y <- resid(model_gila_all)
+binnedplot(x, y)
+```
+
+```{r Model Summaries - tracks only}
+coef(model_gila_all)
+confint(model_gila_all)
+summary(model_gila_all)
+```
+
