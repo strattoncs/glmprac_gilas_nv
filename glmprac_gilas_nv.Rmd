@@ -9,7 +9,7 @@ output:
     toc_float: True
     theme: 
       bg: "#F5F5F5"
-      fg: "#0000fa"
+      fg: "##00047d"
       primary: "#50A300"
       secondary: "#0072B2"
       success: "#009E73"
