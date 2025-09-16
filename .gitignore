@@ -7,8 +7,9 @@
 #Ignore Proj
 *.Rproj
 
-#ignore OG html
+#ignore OG html and index copy
 glmprac_gilas_nv.html
+CopyOfIndex.html
 
 # History files
 .Rhistory

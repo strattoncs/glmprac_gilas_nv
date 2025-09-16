@@ -9,7 +9,7 @@ output:
     toc_float: True
     theme: 
       bg: "#F5F5F5"
-      fg: "##00047d"
+      fg: "#00047d"
       primary: "#50A300"
       secondary: "#0072B2"
       success: "#009E73"
@@ -73,14 +73,25 @@ gila_tracks <- filter(gila_all, det_type_strict != "v")
 gila_vis <- filter(gila_all, det_type_strict != "s")
 
 ```
+```{r ggplot - lm - all data, echo=TRUE}
+
+ggplot(gila_all, aes(rock_ind, det_strict)) +
+  geom_point(size=3) +
+  geom_smooth(method="lm",
+              fullrange = TRUE) +
+  labs(title="Gila monster detections - all data") +
+  ylab ("Probability of Detection") +
+  xlab ("'Sandiness Index'")
+
+```
 
 
-```{r ggplot - all data, echo=TRUE}
+```{r ggplot - glm - all data, echo=TRUE}
 
 ggplot(gila_all, aes(rock_ind, det_strict)) +
   geom_point(size=3) +
   geom_smooth(method="glm",
-              fullrange = TRUE, #force fit line past limits of data
+              fullrange = TRUE,
               method.args=list(family="binomial"(link="logit"))) +
   labs(title="Gila monster detections - all data") +
   ylab ("Probability of Detection") +
@@ -106,6 +117,29 @@ ggplot(gila_all, aes(rock_ind, det_strict)) +
 model_gila_all <- glm(det_strict ~ rock_ind, data=gila_all, family=binomial)
 model_gila_all
 ```
+
+```{r data transformation}
+newdata <- data.frame(rock_ind = seq(0, 7, length.out = 100))
+newdata$logit_fit <- predict(model_gila_all, newdata = newdata, type = "link")
+
+gila_all$det_adj <- (gila_all$det_strict + 0.5) / 2
+gila_all$logit_obs <- log(gila_all$det_adj / (1 - gila_all$det_adj))
+```
+
+```{r ggplot predictive}
+
+ggplot() +
+  geom_point(data = gila_all, aes(x = rock_ind, y = logit_obs),
+             color = "black", size = 2, alpha = 0.8) +
+  geom_line(data = newdata, aes(x = rock_ind, y = logit_fit),
+            color = "blue", linewidth = 1.2) +
+  labs(
+    title = "Gila monster detections - all data - Logit Scale")  +
+  ylab ("Probability of Detection") +
+  xlab ("Sandiness Index")
+
+```
+
 
 ```{r Binned Redidual Plot - all data, echo=TRUE}
 x <- predict(model_gila_all)
