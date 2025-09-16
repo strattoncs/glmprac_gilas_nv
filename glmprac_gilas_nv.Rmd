@@ -152,6 +152,11 @@ coef(model_gila_all)
 confint(model_gila_all)
 summary(model_gila_all)
 ```
+1.384/4=0.346*100= 34.6%
+
+<br>
+<br>
+<br>
 
 ```{r ggplot - tracks only, echo=TRUE}
 
